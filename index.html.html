@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIBM E-Commerce BI & Data Warehousing Portal</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f4ff',
+                            100: '#e0e9fe',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                            accent: '#8b5cf6',
+                            pbi: '#f2c811'
+                        },
+                        dark: {
+                            bg: '#0b0f19',
+                            card: '#111827',
+                            border: '#1f2937',
+                            hover: '#1f293d'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .pbi-glass {
+            background: rgba(22, 27, 38, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .schema-line {
+            stroke: #4f46e5;
+            stroke-width: 2;
+            stroke-dasharray: 4;
+            animation: dash 30s linear infinite;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+
+        .active-nav {
+            color: #818cf8 !important;
+            border-bottom: 2px solid #6366f1;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-gray-200 antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-gray-800/80 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-accent flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded bg-brand-500/20 text-brand-500 border border-brand-500/30">NIBM DW & BI</span>
+                    </div>
+                    <h1 class="text-lg font-bold text-white tracking-tight">E-Commerce BI Analytics Hub</h1>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button id="mobile-menu-btn" class="lg:hidden p-2 text-gray-400 hover:text-white focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium text-gray-300">
+                <a href="#overview" class="hover:text-brand-500 transition-colors py-1">Overview</a>
+                <a href="#eda" class="hover:text-brand-500 transition-colors py-1">EDA & Profiling</a>
+                <a href="#etl" class="hover:text-brand-500 transition-colors py-1">ETL Pipeline</a>
+                <a href="#schema" class="hover:text-brand-500 transition-colors py-1">Star Schema</a>
+                <a href="#ml" class="hover:text-brand-500 transition-colors py-1">Data Mining & ML</a>
+                <a href="#dashboard" class="hover:text-brand-500 transition-colors py-1 text-brand-pbi font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-desktop"></i> Power BI Center
+                </a>
+                <a href="#code" class="hover:text-brand-500 transition-colors py-1">DAX & DDL</a>
+            </nav>
+        </div>
+
+        <!-- Mobile Navigation Menu Dropdown -->
+        <div id="mobile-menu" class="hidden lg:hidden mt-3 pt-3 border-t border-gray-800 space-y-2 px-2 text-sm">
+            <a href="#overview" class="block py-2 text-gray-300 hover:text-white">01. Overview</a>
+            <a href="#eda" class="block py-2 text-gray-300 hover:text-white">02. EDA & Quality</a>
+            <a href="#etl" class="block py-2 text-gray-300 hover:text-white">03. ETL Pipeline</a>
+            <a href="#schema" class="block py-2 text-gray-300 hover:text-white">04. Star Schema Model</a>
+            <a href="#ml" class="block py-2 text-gray-300 hover:text-white">05. Association Rules & ML</a>
+            <a href="#dashboard" class="block py-2 text-brand-pbi font-semibold">06. Interactive Power BI</a>
+            <a href="#code" class="block py-2 text-gray-300 hover:text-white">07. DAX & SQL Scripts</a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 lg:px-8 py-8 space-y-16">
+
+        <!-- SECTION 01: PROJECT OVERVIEW & OBJECTIVES -->
+        <section id="overview" class="space-y-6 pt-4">
+            <div class="relative overflow-hidden rounded-2xl p-8 lg:p-12 glass-panel border border-brand-500/20 shadow-2xl">
+                <div class="absolute -right-20 -top-20 w-80 h-80 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative z-10 max-w-3xl space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 text-brand-500 text-xs font-semibold border border-brand-500/30">
+                        <i class="fa-solid fa-graduation-cap"></i> NIBM Group Coursework Project
+                    </div>
+                    <h2 class="text-3xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        From Transactions to Strategic Decisions: <span class="gradient-text">E-Commerce BI Architecture</span>
+                    </h2>
+                    <p class="text-gray-300 text-base lg:text-lg leading-relaxed">
+                        Build a governed data warehouse and analytics solution for UK online retail transactions. Transitioning seamlessly from raw transactional ingestion and data quality handling to dimensional modeling, Apriori market basket analysis, ML feature importance scoring, and real-time interactive Power BI dashboards.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <a href="#dashboard" class="px-5 py-2.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-medium text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie"></i> Launch Interactive Power BI Simulator
+                        </a>
+                        <a href="#schema" class="px-5 py-2.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 font-medium text-sm transition-all border border-gray-700 flex items-center gap-2">
+                            <i class="fa-solid fa-sitemap"></i> Explore Dimensional Schema
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Analytical Agenda Grid (6 Key Questions) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-110 transition-transform">01</div>
+                    <h3 class="font-semibold text-white mb-1">Sales Trends Over Time</h3>
+                    <p class="text-xs text-gray-400">How do sales performance and unit volumes trend by month, quarter, and year?</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-110 transition-transform">02</div>
+                    <h3 class="font-semibold text-white mb-1">Top Revenue Generators</h3>
+                    <p class="text-xs text-gray-400">Which specific products drive maximum revenue and profit contribution across the store?</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-110 transition-transform">03</div>
+                    <h3 class="font-semibold text-white mb-1">Channel & Geographic Share</h3>
+                    <p class="text-xs text-gray-400">Which sales channels (Website, App, Marketplace) and regions generate top sales?</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-110 transition-transform">04</div>
+                    <h3 class="font-semibold text-white mb-1">Customer & SKU Profile</h3>
+                    <p class="text-xs text-gray-400">What is the active volume of distinct customers, order IDs, and unique products?</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-110 transition-transform">05</div>
+                    <h3 class="font-semibold text-white mb-1">Basket Analysis & Bundling</h3>
+                    <p class="text-xs text-gray-400">Can Apriori association rule mining uncover product bundle cross-selling opportunities?</p>
+                </div>
+
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 hover:border-brand-500/50 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-lg mb-3 group-hover:scale-110 transition-transform">06</div>
+                    <h3 class="font-semibold text-white mb-1">OLAP & Decision Support</h3>
+                    <p class="text-xs text-gray-400">How do Slice, Dice, Drill-down, and Roll-up operations enable intuitive decision-making?</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 02: EXPLORATORY DATA ANALYSIS (EDA) & QUALITY -->
+        <section id="eda" class="space-y-6">
+            <div class="border-b border-gray-800 pb-3 flex flex-wrap justify-between items-end gap-2">
+                <div>
+                    <span class="text-xs font-mono text-brand-500 uppercase tracking-widest">Section 02</span>
+                    <h2 class="text-2xl font-bold text-white">Exploratory Data Analysis & Quality Audit</h2>
+                </div>
+                <p class="text-xs text-gray-400 max-w-md">Data profiling metrics based on the 1,500 analytical record sample and data quality treatment framework.</p>
+            </div>
+
+            <!-- KPI Summary Metric Cards Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+                    <span class="text-xs font-medium text-gray-400 block mb-1">Analytical Sample</span>
+                    <span class="text-2xl font-extrabold text-white font-mono">1,500</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Transaction Records</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+                    <span class="text-xs font-medium text-gray-400 block mb-1">Unique Orders</span>
+                    <span class="text-2xl font-extrabold text-indigo-400 font-mono">1,329</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Order Baskets</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+                    <span class="text-xs font-medium text-gray-400 block mb-1">Known Customers</span>
+                    <span class="text-2xl font-extrabold text-purple-400 font-mono">772</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Unique CustomerIDs</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+                    <span class="text-xs font-medium text-gray-400 block mb-1">Product Catalog</span>
+                    <span class="text-2xl font-extrabold text-emerald-400 font-mono">972</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Product IDs (978 Names)</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+                    <span class="text-xs font-medium text-gray-400 block mb-1">Net Revenue</span>
+                    <span class="text-2xl font-extrabold text-brand-pbi font-mono">£28,413</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Sample Net Sales</span>
+                </div>
+                <div class="glass-panel p-4 rounded-xl border border-gray-800 text-center">
+                    <span class="text-xs font-medium text-gray-400 block mb-1">Total Quantity</span>
+                    <span class="text-2xl font-extrabold text-blue-400 font-mono">15,960</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Units Sold</span>
+                </div>
+            </div>
+
+            <!-- Data Quality Audit Matrix Table -->
+            <div class="glass-panel rounded-xl overflow-hidden border border-gray-800">
+                <div class="p-4 bg-gray-900/60 border-b border-gray-800 flex justify-between items-center">
+                    <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-brand-500"></i> Data Quality Audit & Handling Rules
+                    </h3>
+                    <span class="text-xs text-gray-400">1,500 Raw Records Assessed</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-gray-300">
+                        <thead class="text-xs text-gray-400 uppercase bg-gray-900/80 border-b border-gray-800 font-mono">
+                            <tr>
+                                <th class="px-6 py-3">Quality Attribute / Field</th>
+                                <th class="px-6 py-3">Audit Observation</th>
+                                <th class="px-6 py-3">Treatment / Decision Rule</th>
+                                <th class="px-6 py-3">Analytical Justification</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-800/60">
+                            <tr class="hover:bg-gray-800/30 transition-colors">
+                                <td class="px-6 py-4 font-semibold text-white font-mono">CustomerID Missing</td>
+                                <td class="px-6 py-4 text-amber-400 font-medium">390 Records Missing (26%)</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-indigo-500/20 text-indigo-300 text-xs border border-indigo-500/30">RETAIN FOR SALES</span></td>
+                                <td class="px-6 py-4 text-xs text-gray-400">Retained for total sales, product performance, and time-series analysis; flagged/excluded only for customer-level segmentation.</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/30 transition-colors">
+                                <td class="px-6 py-4 font-semibold text-white font-mono">Duplicate Rows</td>
+                                <td class="px-6 py-4 text-emerald-400 font-medium">0 Duplicates Found</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs border border-emerald-500/30">NO REMOVAL NEEDED</span></td>
+                                <td class="px-6 py-4 text-xs text-gray-400">All 1,500 records represent distinct valid transaction line items.</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/30 transition-colors">
+                                <td class="px-6 py-4 font-semibold text-white font-mono">Quantity ≤ 0</td>
+                                <td class="px-6 py-4 text-emerald-400 font-medium">0 Non-positive Quantities</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs border border-emerald-500/30">NO EXCLUSION</span></td>
+                                <td class="px-6 py-4 text-xs text-gray-400">All line items contain positive item quantities. Cancellations are tracked via OrderStatus dimension.</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/30 transition-colors">
+                                <td class="px-6 py-4 font-semibold text-white font-mono">UnitPrice ≤ 0</td>
+                                <td class="px-6 py-4 text-emerald-400 font-medium">0 Zero/Negative Prices</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs border border-emerald-500/30">VALID PRICES</span></td>
+                                <td class="px-6 py-4 text-xs text-gray-400">Unit prices range cleanly between £8.99 and £129.99 across catalog items.</td>
+                            </tr>
+                            <tr class="hover:bg-gray-800/30 transition-colors">
+                                <td class="px-6 py-4 font-semibold text-white font-mono">ProductName Missing</td>
+                                <td class="px-6 py-4 text-emerald-400 font-medium">0 Missing Names</td>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs border border-emerald-500/30">100% COMPLETE</span></td>
+                                <td class="px-6 py-4 text-xs text-gray-400">Product names map directly to ProductIDs (e.g. Office Chair, Smart Watch, Coffee Maker).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 03: ETL PIPELINE & DATA TRANSFORMATION -->
+        <section id="etl" class="space-y-6">
+            <div class="border-b border-gray-800 pb-3 flex flex-wrap justify-between items-end gap-2">
+                <div>
+                    <span class="text-xs font-mono text-brand-500 uppercase tracking-widest">Section 03</span>
+                    <h2 class="text-2xl font-bold text-white">Power Query ETL Transformation Simulator</h2>
+                </div>
+                <div class="flex gap-2">
+                    <button id="btn-toggle-etl-raw" onclick="switchEtlView('raw')" class="px-3 py-1 rounded bg-brand-600 text-white text-xs font-semibold shadow">Raw Source Data</button>
+                    <button id="btn-toggle-etl-clean" onclick="switchEtlView('clean')" class="px-3 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold">Transformed Power Query</button>
+                </div>
+            </div>
+
+            <!-- ETL Transformation Flow Diagram -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-center text-xs">
+                <div class="glass-panel p-3 rounded-lg border border-brand-500/30">
+                    <span class="text-brand-500 font-bold block">1. EXTRACT</span>
+                    <p class="text-gray-400 mt-1">1,500 selected transactional sales records from UK Online Retail</p>
+                </div>
+                <div class="glass-panel p-3 rounded-lg border border-brand-500/30">
+                    <span class="text-brand-500 font-bold block">2. TYPE CASTING</span>
+                    <p class="text-gray-400 mt-1">Cast DateTime, Text OrderID, Decimal UnitPrice, Int Quantity</p>
+                </div>
+                <div class="glass-panel p-3 rounded-lg border border-brand-500/30">
+                    <span class="text-brand-500 font-bold block">3. DERIVED METRICS</span>
+                    <p class="text-gray-400 mt-1">GrossAmount = Qty × Price<br>NetSales = Gross × (1 - Discount)</p>
+                </div>
+                <div class="glass-panel p-3 rounded-lg border border-brand-500/30">
+                    <span class="text-brand-500 font-bold block">4. LOAD MODEL</span>
+                    <p class="text-gray-400 mt-1">Load into FactSales and 5 Conformed Star Schema Dimensions</p>
+                </div>
+            </div>
+
+            <!-- Simulated Power Query Desktop View -->
+            <div class="glass-panel rounded-xl border border-gray-800 overflow-hidden shadow-2xl">
+                <!-- Power Query Window Bar -->
+                <div class="bg-gray-900 px-4 py-2 border-b border-gray-800 flex items-center justify-between font-mono text-xs text-gray-400">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-table-cells text-emerald-500"></i>
+                        <span class="text-white font-semibold">Power Query Editor</span> - <span id="pq-query-title">Queries [5]: Sheet1 (Fact_Sales)</span>
+                    </div>
+                    <span class="text-gray-500">Column Profiling based on top 1000 rows</span>
+                </div>
+
+                <!-- M Code Formula Bar -->
+                <div class="bg-gray-950 px-4 py-2 border-b border-gray-800 font-mono text-xs flex items-center gap-3">
+                    <span class="text-brand-500 font-bold">fx</span>
+                    <div id="pq-formula" class="text-gray-300 overflow-x-auto whitespace-nowrap">
+                        = Table.TransformColumnTypes(#"Promoted Headers", {{"OrderID", type text}, {"OrderDate", type datetime}, {"CustomerID", type text}, {"ProductID", type text}, {"ProductName", type text}, {"UnitPrice", type number}, {"Quantity", Int64.Type}, {"Discount", type number}})
+                    </div>
+                </div>
+
+                <!-- Data Table View -->
+                <div class="overflow-x-auto max-h-80 overflow-y-auto">
+                    <table id="etl-table" class="w-full text-left font-mono text-xs">
+                        <!-- JS injected -->
+                    </table>
+                </div>
+
+                <div class="p-3 bg-gray-900/80 border-t border-gray-800 flex justify-between text-xs text-gray-400">
+                    <span>12 Columns, 999+ Rows</span>
+                    <span class="text-emerald-400"><i class="fa-solid fa-circle-check"></i> Applied Steps: Promoted Headers → Changed Types → Added GrossAmount & NetSales</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 04: DIMENSIONAL MODELING (STAR SCHEMA) -->
+        <section id="schema" class="space-y-6">
+            <div class="border-b border-gray-800 pb-3 flex justify-between items-end">
+                <div>
+                    <span class="text-xs font-mono text-brand-500 uppercase tracking-widest">Section 04</span>
+                    <h2 class="text-2xl font-bold text-white">Dimensional Modeling — Star Schema</h2>
+                </div>
+                <p class="text-xs text-gray-400 hidden md:block">Click any dimension table to highlight its key relationships and attribute hierarchy.</p>
+            </div>
+
+            <p class="text-sm text-gray-300">
+                The analytical data warehouse is modeled as a classic <strong>Star Schema</strong> with a central fact table (<code class="text-emerald-400 font-mono">Fact_Sales / Sheet1</code>) surrounded by 5 conformed dimension tables. All relationships are <strong>1-to-Many (1:*)</strong> with single-direction cross-filtering for high performance.
+            </p>
+
+            <!-- Interactive Star Schema Visual Canvas -->
+            <div class="glass-panel p-6 rounded-2xl border border-gray-800 relative">
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 relative z-10">
+                    
+                    <!-- Dim_Customer -->
+                    <div id="card-dim-customer" onclick="highlightDimension('customer')" class="schema-card p-4 rounded-xl glass-panel border border-brand-500/30 hover:border-brand-500 cursor-pointer transition-all">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-800 mb-2">
+                            <span class="font-bold text-xs text-brand-400 font-mono"><i class="fa-solid fa-users text-indigo-400"></i> Dim_Customer</span>
+                            <span class="text-[10px] px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 rounded">1</span>
+                        </div>
+                        <ul class="text-xs font-mono space-y-1 text-gray-300">
+                            <li class="text-brand-300 font-bold">🔑 CustomerKey (PK)</li>
+                            <li>CustomerID</li>
+                            <li class="text-gray-500">Country</li>
+                        </ul>
+                    </div>
+
+                    <!-- Dim_OrderStatus -->
+                    <div id="card-dim-orderstatus" onclick="highlightDimension('orderstatus')" class="schema-card p-4 rounded-xl glass-panel border border-brand-500/30 hover:border-brand-500 cursor-pointer transition-all">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-800 mb-2">
+                            <span class="font-bold text-xs text-brand-400 font-mono"><i class="fa-solid fa-list-check text-purple-400"></i> Dim_OrderStatus</span>
+                            <span class="text-[10px] px-1.5 py-0.5 bg-purple-500/20 text-purple-300 rounded">1</span>
+                        </div>
+                        <ul class="text-xs font-mono space-y-1 text-gray-300">
+                            <li class="text-brand-300 font-bold">🔑 OrderStatusKey (PK)</li>
+                            <li>OrderStatus</li>
+                            <li class="text-gray-500">(Completed/Cancelled/Returned)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Central Fact_Sales -->
+                    <div id="card-fact-sales" class="schema-card p-5 rounded-xl bg-gradient-to-b from-emerald-950/80 to-gray-900 border-2 border-emerald-500/80 shadow-xl shadow-emerald-950/50">
+                        <div class="flex items-center justify-between pb-2 border-b border-emerald-800/60 mb-2">
+                            <span class="font-extrabold text-xs text-emerald-400 font-mono"><i class="fa-solid fa-database"></i> Fact_Sales (Sheet1)</span>
+                            <span class="text-[10px] px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-bold">*</span>
+                        </div>
+                        <ul class="text-xs font-mono space-y-1.5 text-gray-200">
+                            <li class="text-amber-300">🗝️ OrderID</li>
+                            <li class="text-amber-300">🗝️ CustomerID</li>
+                            <li class="text-amber-300">🗝️ ProductID</li>
+                            <li class="text-amber-300">🗝️ OrderStatus</li>
+                            <li class="text-amber-300">🗝️ SalesChannel</li>
+                            <li class="text-amber-300">🗝️ OrderDate</li>
+                            <li class="pt-1 border-t border-gray-800 text-emerald-300">📊 Quantity</li>
+                            <li class="text-emerald-300">📊 UnitPrice</li>
+                            <li class="text-emerald-300 font-bold">📊 GrossAmount</li>
+                            <li class="text-emerald-300 font-bold">📊 NetSales</li>
+                        </ul>
+                    </div>
+
+                    <!-- Dim_Product -->
+                    <div id="card-dim-product" onclick="highlightDimension('product')" class="schema-card p-4 rounded-xl glass-panel border border-brand-500/30 hover:border-brand-500 cursor-pointer transition-all">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-800 mb-2">
+                            <span class="font-bold text-xs text-brand-400 font-mono"><i class="fa-solid fa-box-open text-amber-400"></i> Dim_Product</span>
+                            <span class="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-300 rounded">1</span>
+                        </div>
+                        <ul class="text-xs font-mono space-y-1 text-gray-300">
+                            <li class="text-brand-300 font-bold">🔑 ProductKey (PK)</li>
+                            <li>ProductID</li>
+                            <li>ProductName</li>
+                            <li class="text-gray-500">UnitPrice</li>
+                        </ul>
+                    </div>
+
+                    <!-- Dim_SalesChannel -->
+                    <div id="card-dim-channel" onclick="highlightDimension('channel')" class="schema-card p-4 rounded-xl glass-panel border border-brand-500/30 hover:border-brand-500 cursor-pointer transition-all">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-800 mb-2">
+                            <span class="font-bold text-xs text-brand-400 font-mono"><i class="fa-solid fa-globe text-blue-400"></i> Dim_SalesChannel</span>
+                            <span class="text-[10px] px-1.5 py-0.5 bg-blue-500/20 text-blue-300 rounded">1</span>
+                        </div>
+                        <ul class="text-xs font-mono space-y-1 text-gray-300">
+                            <li class="text-brand-300 font-bold">🔑 SalesChannelKey (PK)</li>
+                            <li>SalesChannel</li>
+                            <li class="text-gray-500">(Website/App/Social/Marketplace)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Dim_Date (DAX Generated) -->
+                <div class="mt-4 max-w-sm mx-auto">
+                    <div id="card-dim-date" onclick="highlightDimension('date')" class="schema-card p-4 rounded-xl glass-panel border border-brand-500/30 hover:border-brand-500 cursor-pointer transition-all">
+                        <div class="flex items-center justify-between pb-2 border-b border-gray-800 mb-2">
+                            <span class="font-bold text-xs text-brand-400 font-mono"><i class="fa-regular fa-calendar-days text-teal-400"></i> Dim_Date (DAX Generated)</span>
+                            <span class="text-[10px] px-1.5 py-0.5 bg-teal-500/20 text-teal-300 rounded">1</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs font-mono text-gray-300">
+                            <div>
+                                <p class="text-brand-300 font-bold">🔑 Date (PK)</p>
+                                <p>Year</p>
+                                <p>Quarter (Q1..Q4)</p>
+                            </div>
+                            <div>
+                                <p>MonthNo (1..12)</p>
+                                <p>MonthName</p>
+                                <p>Day / DayOfWeek</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Explanation Banner -->
+                <div id="schema-details-box" class="mt-4 p-3 rounded-lg bg-gray-900/90 border border-gray-800 text-xs text-gray-300 text-center">
+                    <i class="fa-solid fa-circle-info text-brand-500"></i> Click any dimension card above to view technical FK mapping and cardinality details.
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 05: DATA MINING & MACHINE LEARNING INSIGHTS -->
+        <section id="ml" class="space-y-6">
+            <div class="border-b border-gray-800 pb-3 flex justify-between items-end">
+                <div>
+                    <span class="text-xs font-mono text-brand-500 uppercase tracking-widest">Section 05</span>
+                    <h2 class="text-2xl font-bold text-white">Data Mining & Machine Learning Insights</h2>
+                </div>
+                <span class="text-xs text-gray-400 font-mono">Apriori Bundles & Random Forest Classification</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Apriori Market Basket Analysis Evaluation -->
+                <div class="glass-panel p-6 rounded-xl border border-gray-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-basket-shopping text-amber-400"></i> Association Rule Mining (Apriori)
+                        </h3>
+                        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-xs font-mono">Market Basket</span>
+                    </div>
+
+                    <p class="text-xs text-gray-300 leading-relaxed">
+                        The Apriori algorithm was executed to extract frequent itemsets and product bundling rules from order baskets. Multiple minimum support thresholds were systematically tested:
+                    </p>
+
+                    <!-- Support Test Grid -->
+                    <div class="grid grid-cols-4 gap-2 text-center text-xs font-mono">
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-gray-400 block">Min Supp</span>
+                            <span class="text-white font-bold">0.5%</span>
+                        </div>
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-gray-400 block">Min Supp</span>
+                            <span class="text-white font-bold">0.2%</span>
+                        </div>
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-gray-400 block">Min Supp</span>
+                            <span class="text-white font-bold">0.1%</span>
+                        </div>
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-gray-400 block">Min Supp</span>
+                            <span class="text-white font-bold">0.05%</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-lg bg-amber-950/30 border border-amber-800/50 space-y-2 text-xs">
+                        <h4 class="font-bold text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Analytical Finding: High Basket Sparsity
+                        </h4>
+                        <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li><strong>1,329 Unique Orders</strong> in analytical sample, but only <strong>137 multi-product orders</strong>.</li>
+                            <li>At 0.5% support: 6 frequent 1-itemsets → dropped to <strong>0 frequent 2-itemsets</strong>.</li>
+                            <li><strong>Conclusion:</strong> No valid association rules met the minimum confidence threshold. The dataset contains too few repeated co-purchases to support responsible cross-sell recommendations.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Machine Learning Feature Importance Chart -->
+                <div class="glass-panel p-6 rounded-xl border border-gray-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-brand-400"></i> Feature Importance for Order Value
+                        </h3>
+                        <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 text-xs font-mono">Random Forest</span>
+                    </div>
+
+                    <p class="text-xs text-gray-300">
+                        Random Forest classifier output measuring relative feature contribution towards predicting high vs low order value classification:
+                    </p>
+
+                    <!-- Chart Canvas -->
+                    <div class="h-52">
+                        <canvas id="chartFeatureImportance"></canvas>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-[11px] font-mono">
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-brand-400 font-bold block">71.0%</span>
+                            <span class="text-gray-400">UnitPrice</span>
+                        </div>
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-blue-400 font-bold block">24.5%</span>
+                            <span class="text-gray-400">Quantity</span>
+                        </div>
+                        <div class="p-2 rounded bg-gray-900 border border-gray-800">
+                            <span class="text-purple-400 font-bold block">3.2%</span>
+                            <span class="text-gray-400">Discount & Channel</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 06: INTERACTIVE POWER BI DASHBOARD SHOWCASE -->
+        <section id="dashboard" class="space-y-6">
+            <div class="border-b border-gray-800 pb-3 flex flex-wrap justify-between items-end gap-2">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-mono text-brand-pbi uppercase tracking-widest font-bold">Section 06</span>
+                        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-mono">Interactive Power BI Desktop Canvas</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">Power BI Dashboard & Analytics Center</h2>
+                </div>
+                <button onclick="resetFilters()" class="px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-xs text-gray-200 border border-gray-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Dashboard Filters
+                </button>
+            </div>
+
+            <!-- Power BI Desktop Simulated Canvas Frame -->
+            <div class="pbi-glass rounded-2xl border border-gray-800 p-4 lg:p-6 space-y-6 shadow-2xl">
+                
+                <!-- Interactive Slicers Bar -->
+                <div class="bg-gray-900/90 p-4 rounded-xl border border-gray-800 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Sales Channel Slicer -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-filter text-brand-pbi"></i> Sales Channel Filter:
+                        </label>
+                        <select id="slicer-channel" onchange="updateDashboard()" class="w-full bg-gray-950 border border-gray-800 text-xs text-white rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">All Sales Channels (Website, App, Market, Social)</option>
+                            <option value="Website">Website</option>
+                            <option value="Mobile App">Mobile App</option>
+                            <option value="Marketplace">Marketplace</option>
+                            <option value="Social Media">Social Media</option>
+                        </select>
+                    </div>
+
+                    <!-- Order Status Slicer -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-tags text-brand-pbi"></i> Order Status Filter:
+                        </label>
+                        <select id="slicer-status" onchange="updateDashboard()" class="w-full bg-gray-950 border border-gray-800 text-xs text-white rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">All Order Statuses</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Cancelled">Cancelled</option>
+                            <option value="Returned">Returned</option>
+                        </select>
+                    </div>
+
+                    <!-- Year Slicer -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-300 mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-calendar text-brand-pbi"></i> Year Slicer:
+                        </label>
+                        <select id="slicer-year" onchange="updateDashboard()" class="w-full bg-gray-950 border border-gray-800 text-xs text-white rounded-lg p-2 focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="ALL">All Years (2025 Aggregate)</option>
+                            <option value="2025" selected>2025 Fiscal Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- KPI Cards Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="text-xs text-gray-400 block font-medium">Total Net Sales</span>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <span id="kpi-net-sales" class="text-2xl lg:text-3xl font-extrabold text-white font-mono">£115.19K</span>
+                            <span class="text-xs text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-up"></i> +12.4%</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="text-xs text-gray-400 block font-medium">Total Units Sold</span>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <span id="kpi-units-sold" class="text-2xl lg:text-3xl font-extrabold text-white font-mono">3.00K</span>
+                            <span class="text-xs text-indigo-400 font-semibold">15.9K Total</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="text-xs text-gray-400 block font-medium">Average of NetSales</span>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <span id="kpi-avg-sales" class="text-2xl lg:text-3xl font-extrabold text-white font-mono">£76.85</span>
+                            <span class="text-xs text-gray-400">per order line</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 shadow-inner">
+                        <span class="text-xs text-gray-400 block font-medium">Total Orders</span>
+                        <div class="flex items-baseline justify-between mt-1">
+                            <span id="kpi-total-orders" class="text-2xl lg:text-3xl font-extrabold text-white font-mono">1,000</span>
+                            <span class="text-xs text-purple-400 font-semibold">1.33K Unique</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts Grid 1 -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Net Sales by ProductName Bar Chart -->
+                    <div class="lg:col-span-2 bg-gray-900/80 p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-gray-200">Total Net Sales by ProductName</h3>
+                            <span class="text-[10px] text-gray-400">Top Revenue SKUs</span>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="chartProductSales"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Orders by OrderStatus Donut Chart -->
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-gray-200">Total Orders by OrderStatus</h3>
+                            <span class="text-[10px] text-gray-400">Completion %</span>
+                        </div>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="chartOrderStatus"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts Grid 2 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Net Sales by SalesChannel Bar Chart -->
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-gray-200">Total Net Sales by SalesChannel</h3>
+                            <span class="text-[10px] text-gray-400">Channel Contribution</span>
+                        </div>
+                        <div class="h-60">
+                            <canvas id="chartSalesChannel"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Gross Amount vs Net Sales Scatter Plot -->
+                    <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-gray-200">Sum of GrossAmount vs Sum of NetSales</h3>
+                            <span class="text-[10px] text-gray-400">Discount Variance Scatter</span>
+                        </div>
+                        <div class="h-60">
+                            <canvas id="chartScatter"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulated OLAP Drill-down Table -->
+                <div class="bg-gray-900/80 rounded-xl border border-gray-800 p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold text-gray-200 flex items-center gap-2">
+                            <i class="fa-solid fa-table"></i> OLAP Data Table Matrix (Product Net Sales Breakdown)
+                        </h3>
+                        <span class="text-[10px] text-gray-400">Dynamic Aggregation</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-gray-950 text-gray-400 border-b border-gray-800">
+                                <tr>
+                                    <th class="p-2.5">ProductName</th>
+                                    <th class="p-2.5 text-right">Gross Amount (£)</th>
+                                    <th class="p-2.5 text-right">Avg Discount (%)</th>
+                                    <th class="p-2.5 text-right">Total Net Sales (£)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="olap-matrix-body" class="divide-y divide-gray-800/60 text-gray-300">
+                                <!-- JS Injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 07: DAX CALENDAR & SQL DDL CODE CENTER -->
+        <section id="code" class="space-y-6">
+            <div class="border-b border-gray-800 pb-3 flex justify-between items-end">
+                <div>
+                    <span class="text-xs font-mono text-brand-500 uppercase tracking-widest">Section 07</span>
+                    <h2 class="text-2xl font-bold text-white">DAX Calendar & SQL DDL Code Center</h2>
+                </div>
+                <span class="text-xs text-gray-400">Production Ready Scripts</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- DAX Dim_Date Script -->
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-code text-brand-pbi"></i> DAX Dim_Date Calculated Table
+                        </h3>
+                        <button onclick="copyToClipboard('dax-code')" class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 border border-gray-700">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre id="dax-code" class="bg-gray-950 p-4 rounded-lg text-xs font-mono text-emerald-400 overflow-x-auto border border-gray-800">Dim_Date = 
+ADDCOLUMNS (
+    CALENDAR ( DATE(2025, 1, 1), DATE(2025, 12, 31) ),
+    "Year", YEAR([Date]),
+    "Quarter", "Q" & FORMAT([Date], "Q"),
+    "MonthNo", MONTH([Date]),
+    "MonthName", FORMAT([Date], "MMM"),
+    "Day", DAY([Date]),
+    "DayOfWeek", FORMAT([Date], "ddd")
+)</pre>
+                    <p class="text-[11px] text-gray-400 leading-relaxed">
+                        Generates a continuous 365-day calendar dimension for 2025 with standard time hierarchies (Year → Quarter → Month → Day).
+                    </p>
+                </div>
+
+                <!-- SQL DDL Data Warehouse Schema -->
+                <div class="glass-panel p-5 rounded-xl border border-gray-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-database text-brand-500"></i> SQL DDL Schema Definition
+                        </h3>
+                        <button onclick="copyToClipboard('sql-code')" class="px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-xs text-gray-300 border border-gray-700">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <pre id="sql-code" class="bg-gray-950 p-4 rounded-lg text-xs font-mono text-indigo-300 overflow-x-auto border border-gray-800 max-h-60">-- Fact_Sales Table DDL
+CREATE TABLE Fact_Sales (
+    OrderID VARCHAR(20) NOT NULL,
+    OrderDate DATETIME NOT NULL,
+    CustomerID VARCHAR(20),
+    ProductID VARCHAR(20) NOT NULL,
+    OrderStatus VARCHAR(20) NOT NULL,
+    SalesChannel VARCHAR(30) NOT NULL,
+    UnitPrice DECIMAL(10,2) NOT NULL,
+    Quantity INT NOT NULL,
+    Discount DECIMAL(4,2) DEFAULT 0.00,
+    GrossAmount DECIMAL(12,2) GENERATED ALWAYS AS (Quantity * UnitPrice),
+    NetSales DECIMAL(12,2) GENERATED ALWAYS AS (Quantity * UnitPrice * (1 - Discount)),
+    PRIMARY KEY (OrderID, ProductID),
+    FOREIGN KEY (CustomerID) REFERENCES Dim_Customer(CustomerID),
+    FOREIGN KEY (ProductID) REFERENCES Dim_Product(ProductID)
+);</pre>
+                    <p class="text-[11px] text-gray-400 leading-relaxed">
+                        Standard SQL DDL script creating `Fact_Sales` with calculated gross/net measures and foreign keys.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="border-t border-gray-800 py-8 px-4 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto space-y-2">
+            <p>NIBM Data Warehousing & Business Intelligence Coursework | E-Commerce Analytics</p>
+            <p class="text-gray-600">Built with Tailwind CSS, Chart.js, DAX & Star Schema Data Warehousing Standards.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Sample dataset mimicking the presentation & Power BI data
+        const sampleProducts = [
+            { name: "Office Chair", baseGross: 20000, net: 17500, price: 129.99 },
+            { name: "Smart Watch", baseGross: 14000, net: 12200, price: 89.99 },
+            { name: "Coffee Maker", baseGross: 13500, net: 11800, price: 74.99 },
+            { name: "Perfume", baseGross: 10000, net: 8900, price: 54.99 },
+            { name: "Running Shoes", baseGross: 9800, net: 8600, price: 64.99 },
+            { name: "Mechanical Keyboard", baseGross: 9000, net: 8100, price: 59.99 },
+            { name: "Denim Jeans", baseGross: 8500, net: 7400, price: 44.99 },
+            { name: "Bed Sheet Set", baseGross: 8000, net: 7200, price: 49.99 },
+            { name: "Bluetooth Headphones", baseGross: 7800, net: 6900, price: 39.99 },
+            { name: "Hoodie", baseGross: 6500, net: 5800, price: 39.99 }
+        ];
+
+        // Raw Power Query Data Rows
+        const rawPowerQueryData = [
+            { OrderID: "ORD100001", OrderDate: "4/13/2025 2:21 PM", CustomerID: "CUST11650", ProductID: "P010", ProductName: "Cotton T-Shirt", UnitPrice: 19.99, Quantity: 3, Discount: 0.05 },
+            { OrderID: "ORD100002", OrderDate: "12/15/2025 9:27 AM", CustomerID: "CUST11560", ProductID: "P001", ProductName: "Wireless Mouse", UnitPrice: 18.99, Quantity: 1, Discount: 0.10 },
+            { OrderID: "ORD100003", OrderDate: "9/28/2025 6:03 PM", CustomerID: "CUST10805", ProductID: "P004", ProductName: "Bluetooth Headphones", UnitPrice: 39.99, Quantity: 1, Discount: 0.00 },
+            { OrderID: "ORD100004", OrderDate: "4/17/2025 10:49 AM", CustomerID: "CUST10252", ProductID: "P001", ProductName: "Wireless Mouse", UnitPrice: 18.99, Quantity: 2, Discount: 0.15 },
+            { OrderID: "ORD100005", OrderDate: "3/13/2025 12:38 PM", CustomerID: "CUST11291", ProductID: "P017", ProductName: "Shampoo", UnitPrice: 12.99, Quantity: 1, Discount: 0.25 },
+            { OrderID: "ORD100006", OrderDate: "7/8/2025 5:52 PM", CustomerID: "CUST10209", ProductID: "P017", ProductName: "Shampoo", UnitPrice: 12.99, Quantity: 2, Discount: 0.05 },
+            { OrderID: "ORD100007", OrderDate: "1/21/2025 10:36 AM", CustomerID: "CUST10955", ProductID: "P007", ProductName: "Running Shoes", UnitPrice: 64.99, Quantity: 3, Discount: 0.00 },
+            { OrderID: "ORD100008", OrderDate: "4/13/2025 5:16 PM", CustomerID: "CUST12028", ProductID: "P020", ProductName: "Office Chair", UnitPrice: 129.99, Quantity: 3, Discount: 0.00 }
+        ];
+
+        // Global Chart Handles
+        let chartFeature, chartProd, chartStatus, chartChannel, chartScatterObj;
+
+        // Initialize Page
+        window.onload = function () {
+            renderEtlTable('raw');
+            initFeatureChart();
+            initPbiCharts();
+            updateDashboard();
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            });
+        };
+
+        function switchEtlView(mode) {
+            const rawBtn = document.getElementById('btn-toggle-etl-raw');
+            const cleanBtn = document.getElementById('btn-toggle-etl-clean');
+            
+            if (mode === 'raw') {
+                rawBtn.className = "px-3 py-1 rounded bg-brand-600 text-white text-xs font-semibold shadow";
+                cleanBtn.className = "px-3 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold";
+                document.getElementById('pq-query-title').innerText = "Queries [5]: Sheet1 (Raw Ingestion)";
+            } else {
+                cleanBtn.className = "px-3 py-1 rounded bg-brand-600 text-white text-xs font-semibold shadow";
+                rawBtn.className = "px-3 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold";
+                document.getElementById('pq-query-title').innerText = "Queries [5]: Sheet1 (Transformed & Calculated)";
+            }
+            renderEtlTable(mode);
+        }
+
+        function renderEtlTable(mode) {
+            const table = document.getElementById('etl-table');
+            let html = '';
+
+            if (mode === 'raw') {
+                html = `<thead class="bg-gray-950 text-gray-400 border-b border-gray-800">
+                    <tr>
+                        <th class="p-2">OrderID</th>
+                        <th class="p-2">OrderDate</th>
+                        <th class="p-2">CustomerID</th>
+                        <th class="p-2">ProductID</th>
+                        <th class="p-2">ProductName</th>
+                        <th class="p-2 text-right">UnitPrice</th>
+                        <th class="p-2 text-right">Quantity</th>
+                        <th class="p-2 text-right">Discount</th>
+                    </tr>
+                </thead><tbody class="divide-y divide-gray-800/40 text-gray-300">`;
+
+                rawPowerQueryData.forEach(r => {
+                    html += `<tr class="hover:bg-gray-800/30">
+                        <td class="p-2 text-emerald-400 font-bold">${r.OrderID}</td>
+                        <td class="p-2">${r.OrderDate}</td>
+                        <td class="p-2 text-indigo-300">${r.CustomerID}</td>
+                        <td class="p-2">${r.ProductID}</td>
+                        <td class="p-2 text-white">${r.ProductName}</td>
+                        <td class="p-2 text-right">£${r.UnitPrice.toFixed(2)}</td>
+                        <td class="p-2 text-right">${r.Quantity}</td>
+                        <td class="p-2 text-right">${(r.Discount * 100).toFixed(0)}%</td>
+                    </tr>`;
+                });
+            } else {
+                html = `<thead class="bg-gray-950 text-gray-400 border-b border-gray-800">
+                    <tr>
+                        <th class="p-2">OrderID</th>
+                        <th class="p-2">CustomerID</th>
+                        <th class="p-2 text-right">UnitPrice</th>
+                        <th class="p-2 text-right">Quantity</th>
+                        <th class="p-2 text-right">GrossAmount</th>
+                        <th class="p-2 text-right">Discount</th>
+                        <th class="p-2 text-right text-emerald-400">NetSales</th>
+                    </tr>
+                </thead><tbody class="divide-y divide-gray-800/40 text-gray-300">`;
+
+                rawPowerQueryData.forEach(r => {
+                    const gross = r.UnitPrice * r.Quantity;
+                    const net = gross * (1 - r.Discount);
+                    html += `<tr class="hover:bg-gray-800/30">
+                        <td class="p-2 text-emerald-400 font-bold">${r.OrderID}</td>
+                        <td class="p-2 text-indigo-300">${r.CustomerID}</td>
+                        <td class="p-2 text-right">£${r.UnitPrice.toFixed(2)}</td>
+                        <td class="p-2 text-right">${r.Quantity}</td>
+                        <td class="p-2 text-right text-amber-300">£${gross.toFixed(2)}</td>
+                        <td class="p-2 text-right">${(r.Discount * 100).toFixed(0)}%</td>
+                        <td class="p-2 text-right font-bold text-emerald-400">£${net.toFixed(2)}</td>
+                    </tr>`;
+                });
+            }
+            html += `</tbody>`;
+            table.innerHTML = html;
+        }
+
+        function highlightDimension(dim) {
+            const details = document.getElementById('schema-details-box');
+            if (dim === 'customer') {
+                details.innerHTML = `<span class="text-indigo-400 font-bold">Dim_Customer</span> → <code>Fact_Sales.CustomerID</code> | Cardinality: 1-to-Many (1:*) | Attributes: CustomerID, Country`;
+            } else if (dim === 'orderstatus') {
+                details.innerHTML = `<span class="text-purple-400 font-bold">Dim_OrderStatus</span> → <code>Fact_Sales.OrderStatus</code> | Cardinality: 1-to-Many (1:*) | Values: Completed, Cancelled, Returned`;
+            } else if (dim === 'product') {
+                details.innerHTML = `<span class="text-amber-400 font-bold">Dim_Product</span> → <code>Fact_Sales.ProductID</code> | Cardinality: 1-to-Many (1:*) | Attributes: ProductID, ProductName, UnitPrice`;
+            } else if (dim === 'channel') {
+                details.innerHTML = `<span class="text-blue-400 font-bold">Dim_SalesChannel</span> → <code>Fact_Sales.SalesChannel</code> | Cardinality: 1-to-Many (1:*) | Channels: Website, Mobile App, Marketplace, Social Media`;
+            } else if (dim === 'date') {
+                details.innerHTML = `<span class="text-teal-400 font-bold">Dim_Date</span> → <code>Fact_Sales.OrderDate</code> | DAX CALENDAR hierarchy: Year → Quarter → Month → Day`;
+            }
+        }
+
+        function initFeatureChart() {
+            const ctx = document.getElementById('chartFeatureImportance').getContext('2d');
+            chartFeature = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['UnitPrice', 'Quantity', 'Discount', 'Website', 'Mobile App', 'Social Media'],
+                    datasets: [{
+                        label: 'Importance Score',
+                        data: [0.71, 0.245, 0.032, 0.007, 0.004, 0.002],
+                        backgroundColor: ['#38bdf8', '#38bdf8', '#38bdf8', '#38bdf8', '#38bdf8', '#38bdf8'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { display: false }, ticks: { color: '#f3f4f6' } }
+                    }
+                }
+            });
+        }
+
+        function initPbiCharts() {
+            // Product Net Sales Horizontal Bar Chart
+            const ctxProd = document.getElementById('chartProductSales').getContext('2d');
+            chartProd = new Chart(ctxProd, {
+                type: 'bar',
+                data: {
+                    labels: sampleProducts.map(p => p.name),
+                    datasets: [{
+                        label: 'Net Sales (£)',
+                        data: sampleProducts.map(p => p.net),
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { display: false }, ticks: { color: '#e5e7eb' } }
+                    }
+                }
+            });
+
+            // Order Status Donut Chart
+            const ctxStatus = document.getElementById('chartOrderStatus').getContext('2d');
+            chartStatus = new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Completed', 'Cancelled', 'Returned'],
+                    datasets: [{
+                        data: [820, 110, 70],
+                        backgroundColor: ['#a855f7', '#06b6d4', '#3b82f6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#d1d5db', font: { size: 10 } } } },
+                    cutout: '70%'
+                }
+            });
+
+            // Sales Channel Bar Chart
+            const ctxChannel = document.getElementById('chartSalesChannel').getContext('2d');
+            chartChannel = new Chart(ctxChannel, {
+                type: 'bar',
+                data: {
+                    labels: ['Website', 'Mobile App', 'Marketplace', 'Social Media'],
+                    datasets: [{
+                        label: 'Net Sales',
+                        data: [57000, 33000, 15000, 10190],
+                        backgroundColor: '#7c3aed',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+                        y: { grid: { display: false }, ticks: { color: '#e5e7eb' } }
+                    }
+                }
+            });
+
+            // Scatter Plot: Gross vs Net
+            const ctxScatter = document.getElementById('chartScatter').getContext('2d');
+            const scatterPoints = Array.from({ length: 40 }, (_, i) => {
+                const gross = 50 + i * 15 + Math.random() * 20;
+                const net = gross * (0.85 + Math.random() * 0.12);
+                return { x: gross, y: net };
+            });
+
+            chartScatterObj = new Chart(ctxScatter, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Orders',
+                        data: scatterPoints,
+                        backgroundColor: '#c084fc'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { title: { display: true, text: 'Gross Amount (£)', color: '#9ca3af' }, grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } },
+                        y: { title: { display: true, text: 'Net Sales (£)', color: '#9ca3af' }, grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+        }
+
+        function updateDashboard() {
+            const ch = document.getElementById('slicer-channel').value;
+            const st = document.getElementById('slicer-status').value;
+
+            let multiplier = 1.0;
+            if (ch !== 'ALL') multiplier *= 0.45;
+            if (st !== 'ALL') multiplier *= 0.65;
+
+            const baseNet = 115190 * multiplier;
+            const baseUnits = Math.round(3000 * multiplier);
+            const baseOrders = Math.round(1000 * multiplier);
+            const avgSales = baseOrders > 0 ? (baseNet / baseOrders) : 0;
+
+            // Update KPI elements
+            document.getElementById('kpi-net-sales').innerText = `£${(baseNet / 1000).toFixed(2)}K`;
+            document.getElementById('kpi-units-sold').innerText = `${(baseUnits / 1000).toFixed(2)}K`;
+            document.getElementById('kpi-avg-sales').innerText = `£${avgSales.toFixed(2)}`;
+            document.getElementById('kpi-total-orders').innerText = baseOrders.toLocaleString();
+
+            // Update Product Chart Data
+            chartProd.data.datasets[0].data = sampleProducts.map(p => Math.round(p.net * multiplier));
+            chartProd.update();
+
+            // Update Channel Chart Data
+            if (ch === 'ALL') {
+                chartChannel.data.datasets[0].data = [57000 * multiplier, 33000 * multiplier, 15000 * multiplier, 10190 * multiplier];
+            } else {
+                chartChannel.data.datasets[0].data = [
+                    ch === 'Website' ? 57000 * multiplier : 0,
+                    ch === 'Mobile App' ? 33000 * multiplier : 0,
+                    ch === 'Marketplace' ? 15000 * multiplier : 0,
+                    ch === 'Social Media' ? 10190 * multiplier : 0
+                ];
+            }
+            chartChannel.update();
+
+            // Render OLAP Matrix Table Rows
+            const tableBody = document.getElementById('olap-matrix-body');
+            let html = '';
+            sampleProducts.forEach(p => {
+                const pNet = p.net * multiplier;
+                const pGross = p.baseGross * multiplier;
+                const disc = pGross > 0 ? ((1 - pNet / pGross) * 100) : 0;
+                html += `<tr class="hover:bg-gray-800/40">
+                    <td class="p-2.5 font-semibold text-white">${p.name}</td>
+                    <td class="p-2.5 text-right font-mono">£${pGross.toFixed(2)}</td>
+                    <td class="p-2.5 text-right font-mono text-purple-400">${disc.toFixed(1)}%</td>
+                    <td class="p-2.5 text-right font-mono text-emerald-400 font-bold">£${pNet.toFixed(2)}</td>
+                </tr>`;
+            });
+            tableBody.innerHTML = html;
+        }
+
+        function resetFilters() {
+            document.getElementById('slicer-channel').value = 'ALL';
+            document.getElementById('slicer-status').value = 'ALL';
+            document.getElementById('slicer-year').value = '2025';
+            updateDashboard();
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            alert('Code snippet copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
